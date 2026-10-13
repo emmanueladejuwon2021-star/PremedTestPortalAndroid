@@ -1,5 +1,6 @@
 {
   "expo": {
+    "owner": "emmanueladejuwon2021-star",
     "name": "Apex Premed CBT",
     "slug": "premed-test-portal-android",
     "version": "1.0.0",
@@ -34,7 +35,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "premed-test-portal-android"
+        "projectId": "966ef70b-7c9d-484d-b639-e27dbeca40c6"
       }
     }
   }
