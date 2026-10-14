@@ -11,3 +11,5 @@ npm-debug.*
 .DS_Store
 *.log
 *.txt
+*.apk
+.gradle/

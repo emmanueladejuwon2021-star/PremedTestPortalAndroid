@@ -67,8 +67,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
+    <ErrorBoundary>
+      <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
             <ExamProvider>
@@ -77,8 +77,8 @@ export default function App() {
             </ExamProvider>
           </AuthProvider>
         </ThemeProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 }
 

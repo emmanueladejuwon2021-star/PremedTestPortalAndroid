@@ -11,7 +11,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease -Pandroid.kotlinVersion=1.9.25 -PkotlinVersion=1.9.25 -PsuppressKotlinVersionCompatibilityCheck=true"
+        "gradleCommand": ":app:assembleRelease -Pandroid.kotlinVersion=1.9.25 -PkotlinVersion=1.9.25 -PsuppressKotlinVersionCompatibilityCheck=true -Pexpo.useLegacyPackaging=true"
       },
       "env": {
         "KOTLIN_VERSION": "1.9.25"

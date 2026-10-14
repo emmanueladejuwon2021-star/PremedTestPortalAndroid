@@ -24,7 +24,7 @@
         "backgroundColor": "#0F766E"
       },
       "package": "com.premed.portal.android",
-      "versionCode": 2,
+      "versionCode": 3,
       "permissions": [
         "android.permission.VIBRATE",
         "android.permission.CAMERA",
@@ -39,7 +39,11 @@
         "expo-build-properties",
         {
           "android": {
-            "kotlinVersion": "1.9.25"
+            "kotlinVersion": "1.9.25",
+            "useLegacyPackaging": true,
+            "packagingOptions": {
+              "pickFirst": ["**/libc++_shared.so", "**/libhermes.so"]
+            }
           }
         }
       ]
