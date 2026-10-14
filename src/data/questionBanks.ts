@@ -358,4 +358,13 @@ export const QUESTION_BANK: Question[] = [
     explanation: 'At initial contact (heel strike), the tibialis anterior and other ankle dorsiflexors undergo controlled eccentric contraction (elongating under tension). This smoothly decelerates plantarflexion, preventing foot slap and ensuring smooth transition to flat foot posture.',
     highYield: true,
   },
-];
+].map((q) => ({
+  ...q,
+  correctOption: q.correctOption as any,
+  correctAnswer: q.correctOption as any,
+  topic: q.topicId,
+  clinicalCorrelate: q.explanation,
+  difficulty: (q as any).difficulty || 'medium',
+})) as Question[];
+
+export const QUESTION_BANKS = QUESTION_BANK;

@@ -4,18 +4,22 @@ import { StorageService } from '../services/storageService';
 
 interface AuthContextType {
   student: StudentProfile | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   login: (matricNo: string, fullName: string, department: MedicalDepartment) => Promise<void>;
   logout: () => Promise<void>;
   updateDepartment: (dept: MedicalDepartment) => Promise<void>;
+  updateProfile: (updates: Partial<StudentProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   student: null,
+  isAuthenticated: false,
   isLoading: true,
   login: async () => {},
   logout: async () => {},
   updateDepartment: async () => {},
+  updateProfile: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -29,13 +33,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadSavedStudent = async () => {
     const saved = await StorageService.getProfile();
     if (saved) {
-      setStudent(saved);
+      setStudent({ ...saved, name: saved.fullName });
     } else {
       // Default demo profile for instant out-of-the-box readiness
       const defaultProfile: StudentProfile = {
         id: 'std_demo_01',
         matricNo: 'MED/2026/0419',
         fullName: 'Adejuwon Emmanuel',
+        name: 'Adejuwon Emmanuel',
         email: 'emmanuel.adejuwon@med.unilag.edu.ng',
         department: 'Medicine & Surgery (MBBS)',
         targetExamYear: 2027,
@@ -53,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id: `std_${Date.now()}`,
       matricNo: matricNo.trim().toUpperCase(),
       fullName: fullName.trim(),
+      name: fullName.trim(),
       email: `${matricNo.toLowerCase().replace(/[^a-z0-9]/g, '')}@student.premed.edu`,
       department,
       targetExamYear: 2027,
@@ -75,8 +81,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setStudent(updated);
   };
 
+  const updateProfile = async (updates: Partial<StudentProfile>) => {
+    if (!student) return;
+    const updated = { ...student, ...updates };
+    if (updated.fullName) updated.name = updated.fullName;
+    await StorageService.saveProfile(updated);
+    setStudent(updated);
+  };
+
   return (
-    <AuthContext.Provider value={{ student, isLoading, login, logout, updateDepartment }}>
+    <AuthContext.Provider
+      value={{
+        student,
+        isAuthenticated: !!student,
+        isLoading,
+        login,
+        logout,
+        updateDepartment,
+        updateProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -3,6 +3,7 @@ export type QuestionOptionKey = 'A' | 'B' | 'C' | 'D';
 export interface Question {
   id: string;
   topicId: string;
+  topic?: string;
   courseId: string;
   text: string;
   options: {
@@ -12,7 +13,9 @@ export interface Question {
     D: string;
   };
   correctOption: QuestionOptionKey;
+  correctAnswer?: QuestionOptionKey;
   explanation: string;
+  clinicalCorrelate?: string;
   diagramUrl?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   highYield?: boolean;

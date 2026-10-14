@@ -18,4 +18,5 @@ export interface Course {
   isMock: boolean;
   topics: Topic[];
   badgeColor?: string;
+  calculatorAllowed?: boolean;
 }

@@ -13,6 +13,11 @@ interface ThemeContextType {
     cardBorder: string;
     textPrimary: string;
     textSecondary: string;
+    textTertiary: string;
+    background: string;
+    card: string;
+    border: string;
+    text: string;
   };
   toggleTheme: () => void;
 }
@@ -27,6 +32,11 @@ const ThemeContext = createContext<ThemeContextType>({
     cardBorder: '#E2E8F0',
     textPrimary: '#0F172A',
     textSecondary: '#64748B',
+    textTertiary: '#94A3B8',
+    background: '#F8FAFC',
+    card: '#FFFFFF',
+    border: '#E2E8F0',
+    text: '#0F172A',
   },
   toggleTheme: () => {},
 });
@@ -57,6 +67,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     cardBorder: isDark ? Colors.dark.border : '#E2E8F0',
     textPrimary: isDark ? Colors.dark.text : Colors.slate900,
     textSecondary: isDark ? Colors.dark.textMuted : Colors.slate500,
+    textTertiary: isDark ? Colors.slate400 : Colors.slate400,
+    background: isDark ? Colors.dark.background : '#F8FAFC',
+    card: isDark ? Colors.dark.card : '#FFFFFF',
+    border: isDark ? Colors.dark.border : '#E2E8F0',
+    text: isDark ? Colors.dark.text : Colors.slate900,
   };
 
   return (

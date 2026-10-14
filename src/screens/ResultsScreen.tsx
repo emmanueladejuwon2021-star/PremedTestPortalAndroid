@@ -99,9 +99,8 @@ export const ResultsScreen: React.FC = () => {
   }
 
   // Get question bank for the course to show explanations
-  const courseQuestions = QUESTION_BANKS[result.courseId] || [];
   const questionMap = new Map<string, Question>();
-  courseQuestions.forEach((q) => questionMap.set(q.id, q));
+  (Array.isArray(QUESTION_BANKS) ? QUESTION_BANKS : []).forEach((q: Question) => questionMap.set(q.id, q));
 
   // Also include questions that may be in result.questionIds
   const questionsToReview = result.questionIds
@@ -303,7 +302,7 @@ export const ResultsScreen: React.FC = () => {
                     </Text>
                   </View>
                   <View style={[styles.topicBadge, { backgroundColor: colors.cardBorder }]}>
-                    <Text style={[styles.topicBadgeText, { color: colors.textSecondary }]}>{q.topic}</Text>
+                    <Text style={[styles.topicBadgeText, { color: colors.textSecondary }]}>{q.topic || q.topicId}</Text>
                   </View>
                 </View>
                 <Text style={[styles.qIndexNumber, { color: colors.textTertiary }]}>#{idx + 1}</Text>

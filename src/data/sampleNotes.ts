@@ -1,13 +1,26 @@
+export interface QuizItem {
+  id: string;
+  text: string;
+  question?: string;
+  options: {
+    A: string;
+    B: string;
+    C: string;
+    D: string;
+  };
+  correctAnswer: 'A' | 'B' | 'C' | 'D';
+  answer?: string;
+  explanation: string;
+}
+
 export interface SampleNote {
   id: string;
   title: string;
   course: string;
   content: string;
   keyPoints: string[];
-  quizQuestions: Array<{
-    question: string;
-    answer: string;
-  }>;
+  highYieldPoints: string[];
+  quizQuestions: QuizItem[];
 }
 
 export const SAMPLE_NOTES: SampleNote[] = [
@@ -28,18 +41,50 @@ Absolute refractory period occurs when Na+ inactivation gates are closed (no sti
       'Phase 3 = Voltage-gated K+ channels open (Outward K+)',
       'Absolute refractory period = Inactivation of Na+ channels prevents second AP',
     ],
+    highYieldPoints: [
+      'Resting potential = -70 mV (K+ leak channels dominate)',
+      'Threshold = -55 mV (All-or-none threshold for firing)',
+      'Phase 0 = Voltage-gated Na+ channels open (Inward Na+)',
+      'Peak = +30 mV, Na+ inactivation gates (h gates) close',
+      'Phase 3 = Voltage-gated K+ channels open (Outward K+)',
+      'Absolute refractory period = Inactivation of Na+ channels prevents second AP',
+    ],
     quizQuestions: [
       {
-        question: 'What causes the rapid upstroke (Phase 0) of the neuronal action potential?',
-        answer: 'Opening of voltage-gated Na+ channels causing a massive influx of Na+ into the cell.',
+        id: 'q_ap_1',
+        text: 'What causes the rapid upstroke (Phase 0) of the neuronal action potential?',
+        options: {
+          A: 'Opening of voltage-gated Na+ channels and massive Na+ influx',
+          B: 'Opening of delayed rectifier K+ channels',
+          C: 'Inactivation of the 3Na+/2K+ ATPase',
+          D: 'Inward flux of chloride ions',
+        },
+        correctAnswer: 'A',
+        explanation: 'Rapid opening of activation (m) gates on voltage-sensitive Na+ channels permits explosive inward sodium current down its electrochemical gradient.',
       },
       {
-        question: 'Why does After-Hyperpolarization occur following repolarization?',
-        answer: 'Voltage-gated K+ channels close slowly, allowing continued outward K+ efflux toward EK (-90 mV).',
+        id: 'q_ap_2',
+        text: 'Why does After-Hyperpolarization occur following action potential repolarization?',
+        options: {
+          A: 'Excessive intracellular sodium accumulation',
+          B: 'Delayed-rectifier K+ channels close slowly, keeping K+ conductance high',
+          C: 'Sudden failure of calcium clearance mechanisms',
+          D: 'Active pumping of protons into extracellular fluid',
+        },
+        correctAnswer: 'B',
+        explanation: 'Voltage-gated potassium channels close with a slight delay, continuing to drag membrane potential toward EK (-90 mV) before closing completely.',
       },
       {
-        question: 'What molecular mechanism defines the absolute refractory period?',
-        answer: 'Closure of the inactivation (h) gates of voltage-gated Na+ channels, rendering them unresponsive to any stimulus.',
+        id: 'q_ap_3',
+        text: 'What molecular mechanism defines the absolute refractory period?',
+        options: {
+          A: 'Hyperpolarization below -90 mV',
+          B: 'Closure of inactivation (h) gates of voltage-gated Na+ channels',
+          C: 'Complete exhaustion of intracellular ATP reserves',
+          D: 'Depletion of extracellular magnesium ions',
+        },
+        correctAnswer: 'B',
+        explanation: 'Once inactivation gates (h gates) swing shut at peak depolarization, the channel cannot conduct sodium again until repolarization resets the gates.',
       },
     ],
   },
@@ -61,19 +106,51 @@ Per turn of cycle (per Acetyl-CoA): 3 NADH, 1 FADH2, 1 GTP, 2 CO2.`,
       'Complex II link: Succinate Dehydrogenase is embedded directly in the inner mitochondrial membrane',
       'Substrate-level phosphorylation step: Succinyl-CoA Synthetase produces GTP',
     ],
+    highYieldPoints: [
+      'Rate-limiting enzyme: Isocitrate Dehydrogenase (stimulated by ADP, inhibited by ATP/NADH)',
+      'Per 1 Acetyl-CoA yield: 3 NADH, 1 FADH2, 1 GTP, 2 CO2',
+      'Complex II link: Succinate Dehydrogenase is embedded directly in the inner mitochondrial membrane',
+      'Substrate-level phosphorylation step: Succinyl-CoA Synthetase produces GTP',
+    ],
     quizQuestions: [
       {
-        question: 'Which enzyme serves as the primary rate-limiting step of the Citric Acid Cycle?',
-        answer: 'Isocitrate Dehydrogenase (allosterically stimulated by ADP, inhibited by ATP and NADH).',
+        id: 'q_krebs_1',
+        text: 'Which enzyme serves as the primary rate-limiting step of the Citric Acid Cycle?',
+        options: {
+          A: 'Citrate Synthase',
+          B: 'Isocitrate Dehydrogenase',
+          C: 'Malate Dehydrogenase',
+          D: 'Fumarase',
+        },
+        correctAnswer: 'B',
+        explanation: 'Isocitrate Dehydrogenase catalyses the oxidative decarboxylation of isocitrate to alpha-ketoglutarate, serving as the chief rate-limiting regulator.',
       },
       {
-        question: 'Which Krebs cycle enzyme is also an integral component of the Electron Transport Chain?',
-        answer: 'Succinate Dehydrogenase, which functions as Complex II of the ETC.',
+        id: 'q_krebs_2',
+        text: 'Which Krebs cycle enzyme is embedded in the inner mitochondrial membrane as Complex II of the ETC?',
+        options: {
+          A: 'Pyruvate Dehydrogenase',
+          B: 'Succinate Dehydrogenase',
+          C: 'Aconitase',
+          D: 'Alpha-Ketoglutarate Dehydrogenase',
+        },
+        correctAnswer: 'B',
+        explanation: 'Succinate Dehydrogenase oxidizes succinate to fumarate while transferring electrons directly into the electron transport chain (Complex II).',
       },
       {
-        question: 'What is the net yield of reduced coenzymes and high-energy phosphates per single turn of the cycle?',
-        answer: '3 NADH, 1 FADH2, 1 GTP, and 2 molecules of CO2.',
+        id: 'q_krebs_3',
+        text: 'What is the net yield of reduced coenzymes and high-energy phosphates per single turn of the cycle?',
+        options: {
+          A: '1 NADH, 1 FADH2, 3 GTP, 1 CO2',
+          B: '3 NADH, 1 FADH2, 1 GTP, 2 CO2',
+          C: '2 NADH, 2 FADH2, 2 ATP, 4 CO2',
+          D: '4 NADH, 0 FADH2, 1 ATP, 3 CO2',
+        },
+        correctAnswer: 'B',
+        explanation: 'Each molecule of Acetyl-CoA metabolized yields 3 NADH, 1 FADH2, 1 GTP, and 2 CO2.',
       },
     ],
   },
 ];
+
+export const SAMPLE_STUDY_NOTES = SAMPLE_NOTES;

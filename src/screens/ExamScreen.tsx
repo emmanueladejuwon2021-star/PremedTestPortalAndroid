@@ -129,7 +129,7 @@ export const ExamScreen: React.FC = () => {
           <TouchableOpacity
             style={[styles.toolIconBtn, isSpeaking ? styles.toolActive : null]}
             onPress={handleSpeak}
-            title="Read Aloud"
+            accessibilityLabel="Read Aloud"
             activeOpacity={0.7}
           >
             <Text style={styles.toolIconText}>{isSpeaking ? '🔊' : '🔈'}</Text>
@@ -138,7 +138,7 @@ export const ExamScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.toolIconBtn}
             onPress={() => setCalcVisible(true)}
-            title="Scientific Calculator"
+            accessibilityLabel="Scientific Calculator"
             activeOpacity={0.7}
           >
             <Text style={styles.toolIconText}>🧮</Text>
@@ -147,7 +147,7 @@ export const ExamScreen: React.FC = () => {
           <TouchableOpacity
             style={styles.toolIconBtn}
             onPress={toggleFontSize}
-            title="Adjust Font Size"
+            accessibilityLabel="Adjust Font Size"
             activeOpacity={0.7}
           >
             <Text style={styles.toolIconText}>A±</Text>

@@ -124,7 +124,7 @@ export const ActiveStudyScreen: React.FC = () => {
 
   const calculateQuizScore = () => {
     let score = 0;
-    currentSample.quizQuestions.forEach((q, idx) => {
+    (currentSample.quizQuestions || []).forEach((q: any, idx: number) => {
       if (selectedQuizAnswers[idx] === q.correctAnswer) {
         score++;
       }
@@ -161,7 +161,7 @@ export const ActiveStudyScreen: React.FC = () => {
             <View style={styles.noteCardTop}>
               <Text style={styles.sectionHeaderLabel}>LECTURE NOTES / TOPIC INGESTION</Text>
               <View style={styles.sampleChipsRow}>
-                {SAMPLE_STUDY_NOTES.map((sample, idx) => (
+                {SAMPLE_STUDY_NOTES.map((sample: any, idx: number) => (
                   <TouchableOpacity
                     key={sample.id}
                     style={[
@@ -320,7 +320,7 @@ export const ActiveStudyScreen: React.FC = () => {
                 )}
               </View>
 
-              {currentSample.quizQuestions.map((q, qIdx) => {
+              {(currentSample.quizQuestions || []).map((q: any, qIdx: number) => {
                 const userPick = selectedQuizAnswers[qIdx];
                 return (
                   <View key={q.id} style={[styles.quizQuestionCard, { borderColor: colors.cardBorder }]}>
@@ -414,7 +414,7 @@ export const ActiveStudyScreen: React.FC = () => {
               </Text>
 
               <View style={styles.yieldList}>
-                {currentSample.highYieldPoints.map((point, pIdx) => (
+                {(currentSample.highYieldPoints || []).map((point: string, pIdx: number) => (
                   <View key={pIdx} style={styles.yieldItemRow}>
                     <View style={styles.yieldCheckBullet}>
                       <Text style={styles.yieldCheckIcon}>✓</Text>

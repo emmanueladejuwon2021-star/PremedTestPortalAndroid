@@ -33,10 +33,9 @@ export const QuestionSearchScreen: React.FC = () => {
 
   useEffect(() => {
     // Gather all questions
-    const pool: Question[] = [];
-    Object.values(QUESTION_BANKS).forEach((list) => {
-      pool.push(...list);
-    });
+    const pool: Question[] = Array.isArray(QUESTION_BANKS)
+      ? [...QUESTION_BANKS]
+      : (Object.values(QUESTION_BANKS) as any).flat();
     setAllQuestions(pool);
     loadBookmarks();
   }, []);
@@ -66,7 +65,7 @@ export const QuestionSearchScreen: React.FC = () => {
 
     const qLower = query.toLowerCase();
     const stemMatch = q.text.toLowerCase().includes(qLower);
-    const topicMatch = q.topic.toLowerCase().includes(qLower);
+    const topicMatch = (q.topic || q.topicId || '').toLowerCase().includes(qLower);
     const expMatch = q.explanation.toLowerCase().includes(qLower);
     return stemMatch || topicMatch || expMatch;
   });
@@ -114,7 +113,7 @@ export const QuestionSearchScreen: React.FC = () => {
           </TouchableOpacity>
 
           {COURSES.map((course) => {
-            const count = QUESTION_BANKS[course.id]?.length || 0;
+            const count = allQuestions.filter((q) => q.courseId === course.id).length;
             const isActive = selectedCourseId === course.id;
             return (
               <TouchableOpacity
@@ -153,7 +152,7 @@ export const QuestionSearchScreen: React.FC = () => {
                     <Text style={styles.courseBadgeText}>{q.courseId.toUpperCase()}</Text>
                   </View>
                   <View style={[styles.topicBadge, { backgroundColor: colors.cardBorder }]}>
-                    <Text style={[styles.topicBadgeText, { color: colors.textSecondary }]}>{q.topic}</Text>
+                    <Text style={[styles.topicBadgeText, { color: colors.textSecondary }]}>{q.topic || q.topicId}</Text>
                   </View>
                 </View>
 

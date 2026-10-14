@@ -12,6 +12,7 @@ export interface StudentProfile {
   id: string;
   matricNo: string;
   fullName: string;
+  name?: string;
   email: string;
   department: MedicalDepartment;
   targetExamYear: number;

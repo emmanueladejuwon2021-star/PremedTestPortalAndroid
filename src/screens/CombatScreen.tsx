@@ -53,10 +53,9 @@ export const CombatScreen: React.FC = () => {
 
   const startNewBattle = () => {
     // Gather all questions from all banks and shuffle 10 questions
-    const allQuestions: Question[] = [];
-    Object.values(QUESTION_BANKS).forEach((list) => {
-      allQuestions.push(...list);
-    });
+    const allQuestions: Question[] = Array.isArray(QUESTION_BANKS)
+      ? [...QUESTION_BANKS]
+      : (Object.values(QUESTION_BANKS) as any).flat();
     const shuffled = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 10);
     setBattleQuestions(shuffled);
     setCurrentIndex(0);
@@ -239,7 +238,7 @@ export const CombatScreen: React.FC = () => {
                 <Text style={styles.topicPillText}>{currentQ.topic}</Text>
               </View>
               <Text style={[styles.qDifficulty, { color: colors.textSecondary }]}>
-                {currentQ.difficulty.toUpperCase()}
+                {currentQ.difficulty ? currentQ.difficulty.toUpperCase() : 'MEDIUM'}
               </Text>
             </View>
 

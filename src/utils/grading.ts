@@ -50,3 +50,13 @@ export const calculateGrade = (
     };
   }
 };
+
+export const getGradeBadgeColor = (grade: string): string => {
+  switch (grade) {
+    case 'A': return '#10B981';
+    case 'B': return '#2563EB';
+    case 'C': return '#F59E0B';
+    case 'D': return '#EA580C';
+    default: return '#EF4444';
+  }
+};

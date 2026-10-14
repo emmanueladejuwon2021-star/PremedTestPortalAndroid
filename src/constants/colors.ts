@@ -4,6 +4,13 @@ export const Colors = {
   primaryLight: '#14B8A6',   // Bright Teal
   primaryDark: '#115E59',    // Dark Forest Teal
   primaryBg: '#F0FDFA',      // Very Light Teal Background
+  secondary: '#0D9488',      // Teal 600
+  accent: '#2563EB',         // Blue 600
+  textTertiary: '#94A3B8',   // Slate 400
+  background: '#F8FAFC',
+  card: '#FFFFFF',
+  border: '#E2E8F0',
+  text: '#0F172A',
 
   // Medical Accent & CBT Indicator Colors
   answered: '#10B981',       // Emerald 500 (Answered in Palette)

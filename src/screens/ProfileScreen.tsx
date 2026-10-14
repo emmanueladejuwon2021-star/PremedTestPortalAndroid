@@ -33,7 +33,7 @@ export const ProfileScreen: React.FC = () => {
     await updateProfile({
       name: name.trim(),
       matricNo: matricNo.trim(),
-      department: department.trim(),
+      department: department.trim() as any,
     });
     setIsEditing(false);
     Alert.alert('Profile Updated', 'Candidate profile details updated successfully.');
