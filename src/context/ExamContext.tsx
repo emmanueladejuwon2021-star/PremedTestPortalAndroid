@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Question, QuestionOptionKey } from '../types/question';
 import { ExamResult, ExamSessionConfig } from '../types/exam';
 import { calculateGrade } from '../utils/grading';
@@ -41,43 +41,119 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [lastResult, setLastResult] = useState<ExamResult | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isSubmittingRef = useRef(false);
 
-  // Timer Countdown Effect
-  useEffect(() => {
-    if (isExamActive && secondsRemaining > 0) {
-      timerRef.current = setInterval(() => {
-        setSecondsRemaining((prev) => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            submitExam();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else if (timerRef.current) {
+  // Stable submit function using refs to avoid stale closures
+  const submitExam = useCallback(async (): Promise<ExamResult> => {
+    if (isSubmittingRef.current) {
+      // Prevent double-submit
+      return lastResult || ({} as ExamResult);
+    }
+    isSubmittingRef.current = true;
+
+    if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
 
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+    let score = 0;
+    const topicBreakdown: Record<string, { total: number; correct: number; percentage: number }> = {};
+
+    questions.forEach((q) => {
+      const isCorrect = answers[q.id] === q.correctOption;
+      if (isCorrect) score += 1;
+
+      if (!topicBreakdown[q.topicId]) {
+        topicBreakdown[q.topicId] = { total: 0, correct: 0, percentage: 0 };
+      }
+      topicBreakdown[q.topicId].total += 1;
+      if (isCorrect) topicBreakdown[q.topicId].correct += 1;
+    });
+
+    Object.keys(topicBreakdown).forEach((tId) => {
+      const data = topicBreakdown[tId];
+      data.percentage = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+    });
+
+    const total = questions.length;
+    const grading = calculateGrade(score, total);
+    const duration = currentConfig ? currentConfig.durationMinutes : 30;
+    const timeSpent = Math.max(0, duration * 60 - secondsRemaining);
+
+    const result: ExamResult = {
+      id: `res_${Date.now()}`,
+      courseId: currentConfig ? currentConfig.courseId : 'med_cbt_101',
+      courseCode: currentConfig ? currentConfig.courseCode : 'MED 101',
+      courseTitle: currentConfig ? currentConfig.courseTitle : 'Comprehensive Pre-Medical Sciences',
+      totalScore: score,
+      totalQuestions: total,
+      percentage: grading.percentage,
+      grade: grading.grade,
+      remark: grading.remark,
+      durationMinutes: duration,
+      timeSpentSeconds: Math.max(1, timeSpent),
+      completedAt: new Date().toISOString(),
+      answers,
+      flaggedQuestionIds: flaggedIds,
+      questionIds: questions.map((q) => q.id),
+      topicBreakdown,
     };
-  }, [isExamActive, secondsRemaining]);
+
+    try {
+      await StorageService.saveExamResult(result);
+    } catch (e) {
+      console.error('Failed to persist exam result', e);
+    }
+
+    setLastResult(result);
+    setIsExamActive(false);
+    isSubmittingRef.current = false;
+
+    return result;
+  }, [questions, answers, flaggedIds, currentConfig, secondsRemaining, lastResult]);
+
+  // Timer: only start/stop based on isExamActive. Do not depend on secondsRemaining.
+  useEffect(() => {
+    if (!isExamActive) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    timerRef.current = setInterval(() => {
+      setSecondsRemaining((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [isExamActive]);
+
+  // Auto-submit when timer reaches zero
+  useEffect(() => {
+    if (isExamActive && secondsRemaining === 0 && !isSubmittingRef.current) {
+      submitExam();
+    }
+  }, [isExamActive, secondsRemaining, submitExam]);
 
   const startExam = (config: ExamSessionConfig) => {
-    // Filter questions for the selected course / topics
+    isSubmittingRef.current = false;
+
     let pool = QUESTION_BANK.filter((q) => q.courseId === config.courseId);
 
     if (config.selectedTopicIds && config.selectedTopicIds.length > 0) {
       pool = pool.filter((q) => config.selectedTopicIds!.includes(q.topicId));
     }
 
-    // Fallback if topic filtering yields fewer items than limit
     if (pool.length === 0) {
-      pool = QUESTION_BANK;
+      pool = [...QUESTION_BANK];
     }
 
-    // Shuffle pool
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     const selected = shuffled.slice(0, Math.min(config.questionLimit, shuffled.length));
 
@@ -137,61 +213,12 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setFontSizeScale((prev) => (prev === 1.0 ? 1.15 : prev === 1.15 ? 1.3 : 1.0));
   };
 
-  const submitExam = async (): Promise<ExamResult> => {
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    let score = 0;
-    const topicBreakdown: Record<string, { total: number; correct: number; percentage: number }> = {};
-
-    questions.forEach((q) => {
-      const isCorrect = answers[q.id] === q.correctOption;
-      if (isCorrect) score += 1;
-
-      if (!topicBreakdown[q.topicId]) {
-        topicBreakdown[q.topicId] = { total: 0, correct: 0, percentage: 0 };
-      }
-      topicBreakdown[q.topicId].total += 1;
-      if (isCorrect) topicBreakdown[q.topicId].correct += 1;
-    });
-
-    Object.keys(topicBreakdown).forEach((tId) => {
-      const data = topicBreakdown[tId];
-      data.percentage = Math.round((data.correct / data.total) * 100);
-    });
-
-    const total = questions.length;
-    const grading = calculateGrade(score, total);
-    const duration = currentConfig ? currentConfig.durationMinutes : 30;
-    const timeSpent = duration * 60 - secondsRemaining;
-
-    const result: ExamResult = {
-      id: `res_${Date.now()}`,
-      courseId: currentConfig ? currentConfig.courseId : 'med_cbt_101',
-      courseCode: currentConfig ? currentConfig.courseCode : 'MED 101',
-      courseTitle: currentConfig ? currentConfig.courseTitle : 'Comprehensive Pre-Medical Sciences',
-      totalScore: score,
-      totalQuestions: total,
-      percentage: grading.percentage,
-      grade: grading.grade,
-      remark: grading.remark,
-      durationMinutes: duration,
-      timeSpentSeconds: Math.max(1, timeSpent),
-      completedAt: new Date().toISOString(),
-      answers,
-      flaggedQuestionIds: flaggedIds,
-      questionIds: questions.map((q) => q.id),
-      topicBreakdown,
-    };
-
-    await StorageService.saveExamResult(result);
-    setLastResult(result);
-    setIsExamActive(false);
-
-    return result;
-  };
-
   const cancelExam = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    isSubmittingRef.current = false;
     setIsExamActive(false);
     setCurrentConfig(null);
   };
