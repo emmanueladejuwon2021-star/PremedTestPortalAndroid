@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { Colors } from '../constants/colors';
 
@@ -12,9 +13,19 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title, subtitle, onBack, rightAction }) => {
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.cardBg, borderBottomColor: colors.cardBorder }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: colors.cardBg,
+          borderBottomColor: colors.cardBorder,
+          paddingTop: insets.top > 0 ? insets.top + 8 : 12,
+        },
+      ]}
+    >
       <View style={styles.leftRow}>
         {onBack && (
           <TouchableOpacity onPress={onBack} style={styles.backBtn} activeOpacity={0.7}>

@@ -13,6 +13,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../context/AuthContext';
 import { useExam } from '../context/ExamContext';
 import { useTheme } from '../context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
 import { COURSES } from '../data/courses';
 import { ANNOUNCEMENTS } from '../data/announcements';
@@ -25,6 +26,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const insets = useSafeAreaInsets();
   const { student } = useAuth();
   const { startExam } = useExam();
   const { colors, isDark, toggleTheme } = useTheme();
@@ -79,7 +81,16 @@ export const HomeScreen: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* Top App Header */}
-      <View style={[styles.topBar, { backgroundColor: colors.cardBg, borderBottomColor: colors.cardBorder }]}>
+      <View
+        style={[
+          styles.topBar,
+          {
+            backgroundColor: colors.cardBg,
+            borderBottomColor: colors.cardBorder,
+            paddingTop: insets.top > 0 ? insets.top + 8 : 12,
+          },
+        ]}
+      >
         <View style={styles.topBarLeft}>
           <Text style={[styles.appName, { color: colors.textPrimary }]}>
             Apex <Text style={{ color: Colors.primary }}>PreMed CBT</Text>

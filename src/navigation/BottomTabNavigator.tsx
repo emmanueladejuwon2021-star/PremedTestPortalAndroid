@@ -9,12 +9,14 @@ import { ActiveStudyScreen } from '../screens/ActiveStudyScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { useTheme } from '../context/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../constants/colors';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 export const BottomTabNavigator: React.FC = () => {
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
@@ -23,8 +25,8 @@ export const BottomTabNavigator: React.FC = () => {
         tabBarStyle: {
           backgroundColor: colors.cardBg,
           borderTopColor: colors.cardBorder,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + (insets.bottom > 0 ? insets.bottom - 4 : 0),
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 6,
         },
         tabBarActiveTintColor: Colors.primary,

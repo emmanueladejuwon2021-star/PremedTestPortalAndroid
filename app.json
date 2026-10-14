@@ -24,7 +24,7 @@
         "backgroundColor": "#0F766E"
       },
       "package": "com.premed.portal.android",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [
         "android.permission.VIBRATE",
         "android.permission.CAMERA",
