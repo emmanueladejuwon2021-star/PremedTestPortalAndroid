@@ -10,3 +10,4 @@ npm-debug.*
 *.orig.*
 .DS_Store
 *.log
+*.txt
