@@ -31,13 +31,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loadSavedStudent = async () => {
-    const saved = await StorageService.getProfile();
-    if (saved) {
-      setStudent({ ...saved, name: saved.fullName });
-    } else {
-      // Default demo profile for instant out-of-the-box readiness
-      const defaultProfile: StudentProfile = {
-        id: 'std_demo_01',
+    try {
+      const saved = await StorageService.getProfile();
+      if (saved) {
+        setStudent({ ...saved, name: saved.fullName });
+      } else {
+        // Default demo profile for instant out-of-the-box readiness
+        const defaultProfile: StudentProfile = {
+          id: 'std_demo_01',
+          matricNo: 'MED/2026/0419',
+          fullName: 'Adejuwon Emmanuel',
+          name: 'Adejuwon Emmanuel',
+          email: 'emmanuel.adejuwon@med.unilag.edu.ng',
+          department: 'Medicine & Surgery (MBBS)',
+          targetExamYear: 2027,
+          streakDays: 14,
+          createdAt: new Date().toISOString(),
+        };
+        await StorageService.saveProfile(defaultProfile);
+        setStudent(defaultProfile);
+      }
+    } catch (error) {
+      console.warn('Failed to load saved profile, using fallback:', error);
+      const fallbackProfile: StudentProfile = {
+        id: 'std_demo_fallback',
         matricNo: 'MED/2026/0419',
         fullName: 'Adejuwon Emmanuel',
         name: 'Adejuwon Emmanuel',
@@ -47,10 +64,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         streakDays: 14,
         createdAt: new Date().toISOString(),
       };
-      await StorageService.saveProfile(defaultProfile);
-      setStudent(defaultProfile);
+      setStudent(fallbackProfile);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const login = async (matricNo: string, fullName: string, department: MedicalDepartment) => {

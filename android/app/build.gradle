@@ -91,7 +91,7 @@ android {
         applicationId 'com.premed.portal.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
+        versionCode 3
         versionName "1.0.0"
     }
     signingConfigs {
@@ -118,10 +118,8 @@ android {
     }
     packagingOptions {
         jniLibs {
-            useLegacyPackaging true
+            useLegacyPackaging (findProperty('expo.useLegacyPackaging')?.toBoolean() ?: true)
         }
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libhermes.so'
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
