@@ -29,6 +29,9 @@ export const PracticeScreen: React.FC = () => {
 
   const currentQ = questions[index] || QUESTION_BANK[0];
 
+  // Prefer correctOption (used by question bank data); fall back to correctAnswer for compatibility
+  const correctKey = currentQ.correctOption || currentQ.correctAnswer;
+
   const handleSelectOption = (opt: QuestionOptionKey) => {
     setSelectedOption(opt);
     setRevealed(true);
@@ -80,7 +83,7 @@ export const PracticeScreen: React.FC = () => {
                 optionKey={key}
                 text={currentQ.options[key]}
                 isSelected={selectedOption === key}
-                isCorrect={key === currentQ.correctOption}
+                isCorrect={key === correctKey}
                 showExplanation={revealed}
                 onSelect={() => handleSelectOption(key)}
               />
@@ -93,7 +96,7 @@ export const PracticeScreen: React.FC = () => {
               <View style={styles.explHeader}>
                 <Text style={styles.explIcon}>💡</Text>
                 <Text style={[styles.explTitle, { color: '#15803D' }]}>
-                  Verified Clinical &amp; Theoretical Solution
+                  Verified Clinical & Theoretical Solution
                 </Text>
               </View>
               <Text style={[styles.explText, { color: colors.textPrimary }]}>
@@ -108,7 +111,7 @@ export const PracticeScreen: React.FC = () => {
               onPress={() => setRevealed(true)}
               activeOpacity={0.7}
             >
-              <Text style={styles.revealBtnText}>Reveal Correct Answer &amp; Explanation</Text>
+              <Text style={styles.revealBtnText}>Reveal Correct Answer & Explanation</Text>
             </TouchableOpacity>
           )}
         </View>
