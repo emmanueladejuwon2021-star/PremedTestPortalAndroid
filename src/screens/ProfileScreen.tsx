@@ -20,8 +20,11 @@ export const ProfileScreen: React.FC = () => {
   const { student, updateProfile, logout } = useAuth();
   const { colors, isDark, toggleTheme } = useTheme();
 
+  // Prefer fullName (canonical) with name as fallback for display and editing
+  const displayName = student?.fullName || student?.name || '';
+
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(student?.name || '');
+  const [name, setName] = useState(displayName);
   const [matricNo, setMatricNo] = useState(student?.matricNo || '');
   const [department, setDepartment] = useState(student?.department || '');
 
@@ -31,6 +34,7 @@ export const ProfileScreen: React.FC = () => {
       return;
     }
     await updateProfile({
+      fullName: name.trim(),
       name: name.trim(),
       matricNo: matricNo.trim(),
       department: department.trim() as any,
@@ -91,8 +95,8 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.avatarRow}>
             <View style={styles.avatarCircle}>
               <Text style={styles.avatarInitials}>
-                {student?.name
-                  ? student.name
+                {displayName
+                  ? displayName
                       .split(' ')
                       .map((n) => n[0])
                       .join('')
@@ -112,7 +116,7 @@ export const ProfileScreen: React.FC = () => {
                 />
               ) : (
                 <Text style={[styles.candidateName, { color: colors.textPrimary }]}>
-                  {student?.name || 'Premed Student'}
+                  {displayName || 'Premed Student'}
                 </Text>
               )}
 
