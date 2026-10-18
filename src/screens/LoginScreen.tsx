@@ -63,7 +63,7 @@ export const LoginScreen: React.FC = () => {
           </View>
           <Text style={[styles.brandTitle, { color: colors.textPrimary }]}>Apex PreMed CBT Portal</Text>
           <Text style={[styles.brandSubtitle, { color: colors.textSecondary }]}>
-            Academic Examination &amp; Clinical Preparation Suite
+            Academic Examination & Clinical Preparation Suite
           </Text>
         </View>
 
@@ -150,7 +150,7 @@ export const LoginScreen: React.FC = () => {
           <Text style={[styles.demoTitle, { color: colors.textSecondary }]}>OR LAUNCH ONE-CLICK DEMO PROFILE</Text>
           <View style={styles.demoRow}>
             <TouchableOpacity
-              style={[styles.demoBtn, { borderColor: colors.primary }]}
+              style={[styles.demoBtn, { borderColor: Colors.primary }]}
               onPress={() =>
                 handleQuickDemo(
                   'Medicine & Surgery (MBBS)',
@@ -160,7 +160,7 @@ export const LoginScreen: React.FC = () => {
               }
               activeOpacity={0.7}
             >
-              <Text style={[styles.demoBtnText, { color: colors.primary }]}>MBBS Pre-Med</Text>
+              <Text style={[styles.demoBtnText, { color: Colors.primary }]}>MBBS Pre-Med</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
