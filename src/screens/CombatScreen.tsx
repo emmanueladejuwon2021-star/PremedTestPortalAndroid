@@ -80,72 +80,77 @@ export const CombatScreen: React.FC = () => {
     setSelectedOpt(pick);
 
     const q = battleQuestions[currentIndex];
-    const isCorrect = pick === q.correctAnswer;
+    const correctKey = q.correctOption || q.correctAnswer;
+    const isCorrect = pick === correctKey;
 
     setTimeout(() => {
-      if (turn === 'blue') {
-        if (isCorrect) {
-          const newStreak = streak + 1;
-          setStreak(newStreak);
-          const damage = 20 + newStreak * 5;
-          const nextRedHp = Math.max(0, hpRed - damage);
-          setHpRed(nextRedHp);
-          setScoreBlue((prev) => prev + 15 + newStreak * 5);
+      let currentBlueHp = hpBlue;
+      let currentRedHp = hpRed;
 
-          addLog(`💥 DIRECT HIT! Squad Blue landed Option ${pick}! Dealt ${damage} damage! 🔥 Streak: ${newStreak}x`, 'hit');
+      if (isCorrect) {
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        const damage = 20 + newStreak * 5;
+        currentRedHp = Math.max(0, hpRed - damage);
+        setHpRed(currentRedHp);
+        setScoreBlue((prev) => prev + 15 + newStreak * 5);
 
-          if (nextRedHp <= 0) {
-            finishCombat('Squad Blue (You)');
-            return;
-          }
-        } else {
-          setStreak(0);
-          const nextBlueHp = Math.max(0, hpBlue - 15);
-          setHpBlue(nextBlueHp);
-          addLog(`⚠️ MISFIRE! Squad Blue picked ${pick} (Key: ${q.correctAnswer}). Recoil took 15 HP!`, 'miss');
+        addLog(
+          `💥 DIRECT HIT! Squad Blue answered Option ${pick}! Dealt ${damage} damage to Rival! 🔥 Combo: ${newStreak}x`,
+          'hit'
+        );
 
-          if (nextBlueHp <= 0) {
-            finishCombat('Squad Red (Challenger)');
-            return;
-          }
+        if (currentRedHp <= 0) {
+          finishCombat('Squad Blue (You)');
+          return;
         }
       } else {
-        // Red squad turn (Simulated challenger response)
-        // Red has a 75% accuracy rate
-        const redIsCorrect = Math.random() < 0.75;
-        if (redIsCorrect) {
-          const damage = 20;
-          const nextBlueHp = Math.max(0, hpBlue - damage);
-          setHpBlue(nextBlueHp);
-          setScoreRed((prev) => prev + 15);
-          addLog(`🚨 Squad Red executed a clinical counter-strike! Dealt ${damage} damage to Blue!`, 'miss');
+        setStreak(0);
+        currentBlueHp = Math.max(0, hpBlue - 15);
+        setHpBlue(currentBlueHp);
+        addLog(
+          `⚠️ MISFIRE! Squad Blue picked ${pick} (Correct: ${correctKey}). Recoil caused 15 HP loss!`,
+          'miss'
+        );
 
-          if (nextBlueHp <= 0) {
-            finishCombat('Squad Red (Challenger)');
-            return;
-          }
-        } else {
-          const nextRedHp = Math.max(0, hpRed - 10);
-          setHpRed(nextRedHp);
-          addLog(`🛡️ Squad Red misidentified the diagnosis! Lost 10 HP.`, 'hit');
+        if (currentBlueHp <= 0) {
+          finishCombat('Squad Red (Challenger)');
+          return;
+        }
+      }
 
-          if (nextRedHp <= 0) {
-            finishCombat('Squad Blue (You)');
-            return;
-          }
+      // Simulated Squad Red Counter Attack (70% accuracy rate)
+      const redHit = Math.random() < 0.70;
+      if (redHit) {
+        const redDamage = 15;
+        currentBlueHp = Math.max(0, currentBlueHp - redDamage);
+        setHpBlue(currentBlueHp);
+        setScoreRed((prev) => prev + 12);
+        addLog(`🚨 Squad Red launched a counter-strike! Dealt ${redDamage} damage to Blue!`, 'miss');
+
+        if (currentBlueHp <= 0) {
+          finishCombat('Squad Red (Challenger)');
+          return;
+        }
+      } else {
+        currentRedHp = Math.max(0, currentRedHp - 5);
+        setHpRed(currentRedHp);
+        addLog(`🛡️ Squad Red missed their counter-diagnosis! Took 5 recoil damage!`, 'hit');
+
+        if (currentRedHp <= 0) {
+          finishCombat('Squad Blue (You)');
+          return;
         }
       }
 
       // Next round
       const nextIdx = currentIndex + 1;
       if (nextIdx >= battleQuestions.length) {
-        // Determine by remaining HP and score
-        if (hpBlue > hpRed) finishCombat('Squad Blue (You)');
-        else if (hpRed > hpBlue) finishCombat('Squad Red (Challenger)');
+        if (currentBlueHp > currentRedHp) finishCombat('Squad Blue (You)');
+        else if (currentRedHp > currentBlueHp) finishCombat('Squad Red (Challenger)');
         else finishCombat('Stalemate / Draw');
       } else {
         setCurrentIndex(nextIdx);
-        setTurn((prev) => (prev === 'blue' ? 'red' : 'blue'));
         setSelectedOpt(null);
         setIsEvaluating(false);
       }

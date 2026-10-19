@@ -103,6 +103,16 @@ export const StorageService = {
     }
   },
 
+  async getActiveExamBackup(): Promise<any | null> {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.ACTIVE_EXAM_BACKUP);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error('Failed to get active exam backup', e);
+      return null;
+    }
+  },
+
   async clearActiveExamBackup(): Promise<void> {
     try {
       await AsyncStorage.removeItem(KEYS.ACTIVE_EXAM_BACKUP);

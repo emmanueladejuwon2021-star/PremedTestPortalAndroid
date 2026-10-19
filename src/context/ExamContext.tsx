@@ -42,6 +42,43 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Restore backup on mount if present
+  useEffect(() => {
+    restoreBackupIfAvailable();
+  }, []);
+
+  const restoreBackupIfAvailable = async () => {
+    try {
+      const backup = await StorageService.getActiveExamBackup();
+      if (backup && backup.isExamActive && backup.questions && backup.questions.length > 0) {
+        setQuestions(backup.questions);
+        setCurrentIndex(backup.currentIndex || 0);
+        setAnswers(backup.answers || {});
+        setFlaggedIds(backup.flaggedIds || []);
+        setCurrentConfig(backup.currentConfig || null);
+        setSecondsRemaining(backup.secondsRemaining || 1800);
+        setIsExamActive(true);
+      }
+    } catch (e) {
+      console.warn('Failed to restore active exam backup', e);
+    }
+  };
+
+  // Sync active exam backup
+  useEffect(() => {
+    if (isExamActive && questions.length > 0) {
+      StorageService.saveActiveExamBackup({
+        isExamActive,
+        currentConfig,
+        questions,
+        currentIndex,
+        answers,
+        flaggedIds,
+        secondsRemaining,
+      });
+    }
+  }, [isExamActive, currentIndex, answers, flaggedIds, secondsRemaining]);
+
   // Timer Countdown Effect
   useEffect(() => {
     if (isExamActive && secondsRemaining > 0) {
@@ -139,12 +176,14 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const submitExam = async (): Promise<ExamResult> => {
     if (timerRef.current) clearInterval(timerRef.current);
+    await StorageService.clearActiveExamBackup();
 
     let score = 0;
     const topicBreakdown: Record<string, { total: number; correct: number; percentage: number }> = {};
 
     questions.forEach((q) => {
-      const isCorrect = answers[q.id] === q.correctOption;
+      const targetOption = q.correctOption || q.correctAnswer;
+      const isCorrect = answers[q.id] === targetOption;
       if (isCorrect) score += 1;
 
       if (!topicBreakdown[q.topicId]) {
@@ -192,6 +231,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const cancelExam = () => {
     if (timerRef.current) clearInterval(timerRef.current);
+    StorageService.clearActiveExamBackup();
     setIsExamActive(false);
     setCurrentConfig(null);
   };

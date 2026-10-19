@@ -6,7 +6,7 @@
 
 ## 🌟 Overview
 
-**PremedTestPortalAndroid** is the official accredited Android application clone of the **Premed Test Portal**. Designed from the ground up with strict clinical standards and a production mindset, this mobile portal delivers high-fidelity Prometric CBT examination simulations, self-paced practice modules, active recall study labs, squad battle duels, and offline-first data caching.
+**PremedTestPortalAndroid** is the official accredited Android application clone of the **Premed Test Portal**. Designed from the ground up with strict clinical standards and a production mindset, this mobile portal delivers high-fidelity Prometric CBT examination simulations, self-paced practice modules, active recall study labs, squad battle duels, offline-first data caching, and automatic exam session recovery.
 
 ---
 
@@ -14,6 +14,7 @@
 
 ### 1. ⏱ Prometric CBT Examination Simulator (`ExamScreen`)
 - **Proctored Examination Mode**: Real-time countdown timer with automated warnings at $< 5$ minutes and automatic session submission on expiry.
+- **Session Auto-Recovery**: Background state persistence saves active exam progress in real-time, allowing candidates to resume seamlessly even if interrupted.
 - **Candidate Matriculation Header**: Formal PMSEC proctored banner with candidate identity tracking.
 - **5-Column Question Palette**: Color-coded states matching international Prometric/Pearson standards:
   - 🟢 **Green**: Answered
@@ -84,114 +85,92 @@
 
 ---
 
-## 📦 Project Structure
+## 📱 How to Test This App on Your Android Phone
 
-```
-PremedTestPortalAndroid/
-├── App.tsx                        # Root Application component & Context providers
-├── app.json                       # Expo & Android package configuration
-├── eas.json                       # EAS Android APK & AAB build configuration
-├── package.json                   # Dependencies & build scripts
-├── tsconfig.json                  # Strict TypeScript configuration
-├── assets/                        # App icons, splash screens, and adaptive icons
-├── scripts/
-│   └── generate_assets.js         # Asset generation script
-└── src/
-    ├── components/                # Reusable UI components
-    │   ├── CalculatorModal.tsx    # Prometric Scientific Calculator
-    │   ├── CourseCard.tsx         # Subject card with difficulty & stats
-    │   ├── DiagramModal.tsx       # Anatomical diagram zoom viewer
-    │   ├── Header.tsx             # Candidate session top navigation
-    │   ├── OptionItem.tsx         # CBT single-choice radio option
-    │   ├── QuestionPaletteModal.tsx# 5-column color-coded question palette
-    │   ├── StatCard.tsx           # Dashboard metric cards
-    │   └── SubmitConfirmationModal.tsx # Submission verification dialog
-    ├── constants/                 # Theme colors and typography
-    │   ├── colors.ts
-    │   └── theme.ts
-    ├── context/                   # Global state management
-    │   ├── AuthContext.tsx        # Candidate auth & matriculation state
-    │   ├── ExamContext.tsx        # Timer engine, palette, and answers state
-    │   └── ThemeContext.tsx       # Dark / Light mode context
-    ├── data/                      # Accredited course & question catalogs
-    │   ├── announcements.ts
-    │   ├── courses.ts
-    │   ├── questionBanks.ts       # Hundreds of high-yield clinical questions
-    │   └── sampleNotes.ts
-    ├── navigation/                # Type-safe routing
-    │   ├── AppNavigator.tsx       # Root Native Stack Navigator
-    │   ├── BottomTabNavigator.tsx # Bottom navigation bar
-    │   └── types.ts               # Navigation route type definitions
-    ├── screens/                   # Complete Application Screens
-    │   ├── ActiveStudyScreen.tsx  # AI Study Room & Recall Quiz
-    │   ├── CombatScreen.tsx       # Med Combat Battle Arena
-    │   ├── CoursesScreen.tsx      # Subject Catalog & Syllabi
-    │   ├── ExamScreen.tsx         # Prometric CBT Examination Engine
-    │   ├── HistoryScreen.tsx      # Past Transcripts & Attempts
-    │   ├── HomeScreen.tsx         # Candidate Dashboard
-    │   ├── LeaderboardScreen.tsx  # Cohort Standings & Podium
-    │   ├── LoginScreen.tsx        # Candidate Matriculation Access
-    │   ├── PracticeScreen.tsx     # Untimed Practice with Rationales
-    │   ├── ProfileScreen.tsx      # Candidate Details & Dark Theme
-    │   ├── QuestionSearchScreen.tsx# Question Bank Search Vault
-    │   ├── ReadinessScreen.tsx    # Hardware Check & Pass Probability
-    │   └── ResultsScreen.tsx      # Official Transcript & Grade Review
-    ├── services/
-    │   ├── speechService.ts       # Text-to-speech reader service
-    │   └── storageService.ts      # Offline AsyncStorage CRUD service
-    └── utils/
-        ├── calculator.ts          # Scientific formula evaluator
-        ├── formatters.ts          # MM:SS and date formatters
-        └── grading.ts             # Medical score grading engine
-```
+You can test and run **Apex PreMed CBT** on your Android mobile device using either **Method A (Live Wireless Testing via Expo Go)** or **Method B (Installing Standalone APK File)**.
 
 ---
 
-## 📱 Building the Android APK / Application
+### Method A: Live Wireless Testing via Expo Go (Fastest)
 
-### 1. Prerequisites
-- **Node.js**: v18 or v20 LTS
-- **npm** or **yarn**
-- **Android Studio** (for local emulator/device testing) OR an **Expo Application Services (EAS)** account for cloud building.
+1. **Install Expo Go on your Android Phone**:
+   - Open **Google Play Store** on your Android phone.
+   - Search for **Expo Go** and tap **Install**.
 
-### 2. Local Setup
+2. **Connect Phone & Computer to Same Network**:
+   - Ensure your mobile phone and development machine are connected to the same Wi-Fi network (or computer hotspot).
+
+3. **Start the Development Server**:
+   ```bash
+   npm install
+   npx expo start
+   ```
+
+4. **Scan QR Code**:
+   - Open the **Expo Go** app on your phone.
+   - Tap **Scan QR code** and scan the QR code displayed in your terminal or browser window.
+   - The app will build JavaScript bundles and launch instantly on your device with live-reloading!
+
+---
+
+### Method B: Generating & Installing the Standalone APK (`.apk`)
+
+If you want a standalone installable Android application (`.apk` file) that runs natively on your phone without needing a computer running Expo:
+
+#### Step 1: Build the APK File using EAS Cloud (Recommended)
+
+1. **Install EAS CLI**:
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. **Log into your Expo Account**:
+   ```bash
+   eas login
+   ```
+   *(If you don't have an Expo account, register for a free account at [expo.dev](https://expo.dev)).*
+
+3. **Trigger the Android Preview APK Build**:
+   ```bash
+   eas build --platform android --profile preview
+   ```
+   - Expo Cloud Build will compile the native Android binaries.
+   - Once completed (usually 3–5 minutes), terminal output will provide a **Direct Download Link (`.apk`)** and a **QR Code**.
+
+---
+
+#### Step 2: Alternative Local APK Build (Gradle)
+
+If you have Android SDK and Android Studio installed locally:
 ```bash
-# Clone the repository
-git clone https://github.com/emmanueladejuwon2021-star/PremedTestPortalAndroid.git
-cd PremedTestPortalAndroid
-
-# Install dependencies
-npm install
+# Build standalone release APK locally
+npx expo run:android --variant release
 ```
+The generated `.apk` file will be located at:
+`android/app/build/outputs/apk/release/app-release.apk`
 
-### 3. Run on Android Device or Emulator
-```bash
-# Start Expo development server with Android target
-npx expo start --android
-```
+---
 
-### 4. Build Standalone Android APK (EAS Cloud)
-To compile a downloadable `.apk` file for physical device distribution:
-```bash
-# Install EAS CLI globally if not already installed
-npm install -g eas-cli
+#### Step 3: Installing the APK File on Your Android Phone
 
-# Log in to your Expo account
-eas login
+1. **Download / Transfer the `.apk` file to your phone**:
+   - **Option 1 (Direct QR/URL)**: Scan the download QR code from the EAS build output or open the provided download link directly in Chrome on your phone.
+   - **Option 2 (USB Cable)**: Connect phone to PC via USB, set to *File Transfer / MTP*, and copy `app-release.apk` to your phone's *Downloads* folder.
+   - **Option 3 (Messaging/Drive)**: Upload `.apk` to Google Drive or send it via Telegram/WhatsApp to yourself and download it on your phone.
 
-# Build preview APK directly in the cloud (no local Android SDK required)
-eas build --platform android --profile preview
-```
+2. **Enable Unknown Sources Installation**:
+   - When you tap the downloaded `.apk` file in your phone's File Manager or Chrome, Android security will display a prompt: *"For your security, your phone is not allowed to install unknown apps from this source."*
+   - Tap **Settings** on the prompt.
+   - Toggle **Allow from this source** to `ON`.
 
-### 5. Build Android App Bundle (AAB for Google Play Store)
-```bash
-eas build --platform android --profile production
-```
+3. **Complete Installation**:
+   - Return to the installer prompt and tap **Install**.
+   - Once installed, tap **Open** to launch **Apex PreMed CBT**!
 
 ---
 
 ## 🔒 Offline-First Architecture
-All core question banks, course syllabi, diagnostic tests, and past exam results are stored locally using `@react-native-async-storage/async-storage`. Candidates can sit for full simulated examinations even with intermittent or zero internet connectivity.
+All core question banks, course syllabi, diagnostic tests, active recall study notes, and past exam results are cached locally using `@react-native-async-storage/async-storage`. Candidates can sit for full proctored CBT examinations even without internet connectivity.
 
 ---
 

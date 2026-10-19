@@ -100,7 +100,7 @@ export const ResultsScreen: React.FC = () => {
 
   // Get question bank for the course to show explanations
   const questionMap = new Map<string, Question>();
-  (Array.isArray(QUESTION_BANKS) ? QUESTION_BANKS : []).forEach((q: Question) => questionMap.set(q.id, q));
+  QUESTION_BANKS.forEach((q: Question) => questionMap.set(q.id, q));
 
   // Also include questions that may be in result.questionIds
   const questionsToReview = result.questionIds
@@ -109,7 +109,8 @@ export const ResultsScreen: React.FC = () => {
 
   const filteredQuestions = questionsToReview.filter((q) => {
     const userAnswer = result.answers[q.id];
-    const isCorrect = userAnswer === q.correctAnswer;
+    const targetKey = q.correctOption || q.correctAnswer;
+    const isCorrect = userAnswer === targetKey;
     const isFlagged = result.flaggedQuestionIds.includes(q.id);
 
     if (filter === 'correct') return isCorrect;
@@ -282,7 +283,8 @@ export const ResultsScreen: React.FC = () => {
         {/* Question List */}
         {filteredQuestions.map((q, idx) => {
           const userAnswer = result.answers[q.id];
-          const isCorrect = userAnswer === q.correctAnswer;
+          const targetKey = q.correctOption || q.correctAnswer;
+          const isCorrect = userAnswer === targetKey;
           const isExpanded = !!expandedQuestions[q.id];
 
           return (
@@ -315,7 +317,7 @@ export const ResultsScreen: React.FC = () => {
               <View style={styles.optionsList}>
                 {(['A', 'B', 'C', 'D'] as const).map((key) => {
                   const isUserSelection = userAnswer === key;
-                  const isCorrectAnswer = q.correctAnswer === key;
+                  const isCorrectAnswer = targetKey === key;
 
                   let optBorderColor = colors.cardBorder;
                   let optBgColor = 'transparent';

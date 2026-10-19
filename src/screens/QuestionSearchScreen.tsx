@@ -172,7 +172,8 @@ export const QuestionSearchScreen: React.FC = () => {
               {/* Options Preview */}
               <View style={styles.optionsPreviewGrid}>
                 {(['A', 'B', 'C', 'D'] as const).map((key) => {
-                  const isKey = q.correctAnswer === key;
+                  const targetKey = q.correctOption || q.correctAnswer;
+                  const isKey = targetKey === key;
                   return (
                     <View
                       key={key}
