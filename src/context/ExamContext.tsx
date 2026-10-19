@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Question, QuestionOptionKey } from '../types/question';
 import { ExamResult, ExamSessionConfig } from '../types/exam';
 import { calculateGrade } from '../utils/grading';
@@ -41,6 +41,7 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [lastResult, setLastResult] = useState<ExamResult | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isActiveRef = useRef(false);
 
   // Restore backup on mount if present
   useEffect(() => {
@@ -75,31 +76,43 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
         answers,
         flaggedIds,
         secondsRemaining,
-      });
+      }).catch(console.error);
     }
-  }, [isExamActive, currentIndex, answers, flaggedIds, secondsRemaining]);
+  }, [isExamActive, currentIndex, answers, flaggedIds, secondsRemaining, currentConfig, questions]);
 
-  // Timer Countdown Effect
+  // Keep ref in sync for timer callback
   useEffect(() => {
-    if (isExamActive && secondsRemaining > 0) {
+    isActiveRef.current = isExamActive;
+  }, [isExamActive]);
+
+  // Stable timer: only restart when exam starts/stops, not on every tick
+  useEffect(() => {
+    if (isExamActive) {
       timerRef.current = setInterval(() => {
         setSecondsRemaining((prev) => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            submitExam();
+            if (timerRef.current) clearInterval(timerRef.current);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-    } else if (timerRef.current) {
-      clearInterval(timerRef.current);
     }
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [isExamActive, secondsRemaining]);
+  }, [isExamActive]);
+
+  // Auto-submit when timer reaches 0 while active
+  useEffect(() => {
+    if (isExamActive && secondsRemaining === 0) {
+      submitExam();
+    }
+  }, [secondsRemaining, isExamActive]);
 
   const startExam = (config: ExamSessionConfig) => {
     // Filter questions for the selected course / topics
@@ -130,6 +143,18 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentConfig(config);
     setSecondsRemaining(config.durationMinutes * 60);
     setIsExamActive(true);
+
+    // Backup start state
+    StorageService.saveActiveExamBackup({
+      isExamActive: true,
+      currentConfig: config,
+      questions: selected,
+      answers: initialAnswers,
+      flaggedIds: [],
+      secondsRemaining: config.durationMinutes * 60,
+      currentIndex: 0,
+      startedAt: Date.now(),
+    }).catch(console.error);
   };
 
   const selectOption = (questionId: string, option: QuestionOptionKey) => {
@@ -174,8 +199,11 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setFontSizeScale((prev) => (prev === 1.0 ? 1.15 : prev === 1.15 ? 1.3 : 1.0));
   };
 
-  const submitExam = async (): Promise<ExamResult> => {
-    if (timerRef.current) clearInterval(timerRef.current);
+  const submitExam = useCallback(async (): Promise<ExamResult> => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     await StorageService.clearActiveExamBackup();
 
     let score = 0;
@@ -227,11 +255,14 @@ export const ExamProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsExamActive(false);
 
     return result;
-  };
+  }, [questions, answers, currentConfig, secondsRemaining, flaggedIds]);
 
   const cancelExam = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    StorageService.clearActiveExamBackup();
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    StorageService.clearActiveExamBackup().catch(console.error);
     setIsExamActive(false);
     setCurrentConfig(null);
   };
